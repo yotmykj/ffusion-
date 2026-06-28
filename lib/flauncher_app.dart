@@ -1,5 +1,5 @@
 /*
- * FLauncher
+ * FFFusion
  * Copyright (C) 2021  Étienne Fesser
  *
  * This program is free software: you can redistribute it and/or modify
@@ -31,7 +31,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'database.dart';
-import 'flauncher.dart';
+import 'fffusion.dart';
 import 'flauncher_channel.dart';
 
 class FLauncherApp extends StatelessWidget {
@@ -44,18 +44,10 @@ class FLauncherApp extends StatelessWidget {
   final UnsplashService _unsplashService;
   final RemoteConfig _remoteConfig;
 
-  static const MaterialColor _swatch = MaterialColor(0xFF011526, <int, Color>{
-    50: Color(0xFF36A0FA),
-    100: Color(0xFF067BDE),
-    200: Color(0xFF045CA7),
-    300: Color(0xFF033662),
-    400: Color(0xFF022544),
-    500: Color(0xFF011526),
-    600: Color(0xFF000508),
-    700: Color(0xFF000000),
-    800: Color(0xFF000000),
-    900: Color(0xFF000000),
-  });
+  // Modern Material 3 color scheme inspired by Fusion OS
+  static const Color _primaryColor = Color(0xFF667EEA);
+  static const Color _secondaryColor = Color(0xFF764BA2);
+  static const Color _tertiaryColor = Color(0xFF00D9FF);
 
   FLauncherApp(
     this._sharedPreferences,
@@ -72,56 +64,236 @@ class FLauncherApp extends StatelessWidget {
   Widget build(BuildContext context) => MultiProvider(
         providers: [
           ChangeNotifierProvider(
-              create: (_) =>
-                  SettingsService(_sharedPreferences, _firebaseCrashlytics, _firebaseAnalytics, _remoteConfig),
-              lazy: false),
-          ChangeNotifierProvider(create: (_) => AppsService(_fLauncherChannel, _fLauncherDatabase)),
+            create: (_) => SettingsService(
+              _sharedPreferences,
+              _firebaseCrashlytics,
+              _firebaseAnalytics,
+              _remoteConfig,
+            ),
+            lazy: false,
+          ),
+          ChangeNotifierProvider(
+            create: (_) => AppsService(_fLauncherChannel, _fLauncherDatabase),
+          ),
           ChangeNotifierProxyProvider<SettingsService, WallpaperService>(
-              create: (_) => WallpaperService(_imagePicker, _fLauncherChannel, _unsplashService),
-              update: (_, settingsService, wallpaperService) => wallpaperService!..settingsService = settingsService)
+            create: (_) => WallpaperService(
+              _imagePicker,
+              _fLauncherChannel,
+              _unsplashService,
+            ),
+            update: (_, settingsService, wallpaperService) =>
+                wallpaperService!..settingsService = settingsService,
+          )
         ],
         child: MaterialApp(
           shortcuts: {
             ...WidgetsApp.defaultShortcuts,
             SingleActivator(LogicalKeyboardKey.select): ActivateIntent(),
-            SingleActivator(LogicalKeyboardKey.gameButtonB): PrioritizedIntents(orderedIntents: [
-              DismissIntent(),
-              BackIntent(),
-            ]),
+            SingleActivator(LogicalKeyboardKey.gameButtonB):
+                PrioritizedIntents(
+              orderedIntents: [
+                DismissIntent(),
+                BackIntent(),
+              ],
+            ),
           },
           actions: {
             ...WidgetsApp.defaultActions,
             DirectionalFocusIntent: SoundFeedbackDirectionalFocusAction(),
           },
-          title: 'FLauncher',
+          title: 'FFFusion',
           theme: ThemeData(
+            useMaterial3: true,
             brightness: Brightness.dark,
-            primarySwatch: _swatch,
-            toggleableActiveColor: _swatch[200],
-            // ignore: deprecated_member_use
-            accentColor: _swatch[200],
-            cardColor: _swatch[300],
-            canvasColor: _swatch[300],
-            dialogBackgroundColor: _swatch[400],
-            backgroundColor: _swatch[400],
-            scaffoldBackgroundColor: _swatch[400],
-            textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(primary: Colors.white)),
-            appBarTheme: AppBarTheme(elevation: 0, backgroundColor: Colors.transparent),
-            typography: Typography.material2018(),
+            colorScheme: ColorScheme.dark(
+              primary: _primaryColor,
+              secondary: _secondaryColor,
+              tertiary: _tertiaryColor,
+              background: Color(0xFF0F0E17),
+              surface: Color(0xFF1A192D),
+              error: Color(0xFFCF6679),
+            ),
+            scaffoldBackgroundColor: Colors.transparent,
+            appBarTheme: AppBarTheme(
+              elevation: 0,
+              backgroundColor: Colors.transparent,
+              centerTitle: true,
+            ),
+            textTheme: TextTheme(
+              displayLarge: TextStyle(
+                fontSize: 57,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+              ),
+              displayMedium: TextStyle(
+                fontSize: 45,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+              ),
+              displaySmall: TextStyle(
+                fontSize: 36,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+              ),
+              headlineLarge: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              headlineMedium: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              headlineSmall: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              titleLarge: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+              titleMedium: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              titleSmall: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              bodyLarge: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+              ),
+              bodyMedium: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Colors.white70,
+              ),
+              bodySmall: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: Colors.white60,
+              ),
+              labelLarge: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+              labelMedium: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+              labelSmall: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+            ),
+            iconTheme: IconThemeData(
+              color: Colors.white,
+              size: 24,
+            ),
             inputDecorationTheme: InputDecorationTheme(
-              focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-              labelStyle: Typography.material2018().white.bodyText2,
+              filled: true,
+              fillColor: Color(0xFF1A192D).withOpacity(0.8),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: Colors.white.withOpacity(0.1),
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: _primaryColor,
+                  width: 2,
+                ),
+              ),
+              labelStyle: TextStyle(
+                color: Colors.white70,
+              ),
             ),
             textSelectionTheme: TextSelectionThemeData(
-              cursorColor: Colors.white,
-              selectionColor: _swatch[200],
-              selectionHandleColor: _swatch[200],
+              cursorColor: _primaryColor,
+              selectionColor: _primaryColor.withOpacity(0.3),
+              selectionHandleColor: _primaryColor,
+            ),
+            buttonTheme: ButtonThemeData(
+              buttonColor: _primaryColor,
+              textTheme: ButtonTextTheme.primary,
+            ),
+            elevatedButtonTheme: ElevatedButtonThemeData(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _primaryColor,
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 4,
+              ),
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: _primaryColor,
+                textStyle: TextStyle(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            outlinedButtonTheme: OutlinedButtonThemeData(
+              style: OutlinedButton.styleFrom(
+                foregroundColor: _primaryColor,
+                side: BorderSide(
+                  color: _primaryColor,
+                  width: 2,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+            cardTheme: CardTheme(
+              color: Color(0xFF1A192D),
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+            dialogTheme: DialogTheme(
+              backgroundColor: Color(0xFF1A192D),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(28),
+              ),
+              elevation: 24,
             ),
           ),
           home: Builder(
             builder: (context) => WillPopScope(
               onWillPop: () => shouldPopScope(context),
-              child: Actions(actions: {BackIntent: BackAction(context, systemNavigator: true)}, child: FLauncher()),
+              child: Actions(
+                actions: {
+                  BackIntent: BackAction(
+                    context,
+                    systemNavigator: true,
+                  )
+                },
+                child: FFFusion(),
+              ),
             ),
           ),
         ),

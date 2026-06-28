@@ -1,5 +1,5 @@
 /*
- * FLauncher
+ * FFFusion
  * Copyright (C) 2021  Étienne Fesser
  *
  * This program is free software: you can redistribute it and/or modify
@@ -44,47 +44,58 @@ Future<void> main() async {
   final firebaseCrashlytics = FirebaseCrashlytics.instance;
 
   FlutterError.onError = firebaseCrashlytics.recordFlutterError;
-  Isolate.current.addErrorListener(RawReceivePort((List<dynamic> pair) async => await firebaseCrashlytics.recordError(
+  Isolate.current.addErrorListener(
+    RawReceivePort(
+      (List<dynamic> pair) async => await firebaseCrashlytics.recordError(
         pair.first,
         pair.last as StackTrace,
-      )).sendPort);
+      ),
+    ).sendPort,
+  );
 
-  runZonedGuarded<void>(() async {
-    final firebaseAnalytics = FirebaseAnalytics();
-    final sharedPreferences = await SharedPreferences.getInstance();
-    final imagePicker = ImagePicker();
-    final fLauncherChannel = FLauncherChannel();
-    final remoteConfig = await _initFirebaseRemoteConfig();
-    final fLauncherDatabase = FLauncherDatabase.connect(connect());
-    final unsplashService = UnsplashService(
-      UnsplashClient(
-        settings: ClientSettings(
-          debug: kDebugMode,
-          credentials: AppCredentials(
-            accessKey: remoteConfig.getString("unsplash_access_key"),
-            secretKey: remoteConfig.getString("unsplash_secret_key"),
+  runZonedGuarded<void>(
+    () async {
+      final firebaseAnalytics = FirebaseAnalytics();
+      final sharedPreferences = await SharedPreferences.getInstance();
+      final imagePicker = ImagePicker();
+      final fLauncherChannel = FLauncherChannel();
+      final remoteConfig = await _initFirebaseRemoteConfig();
+      final fLauncherDatabase = FLauncherDatabase.connect(connect());
+      final unsplashService = UnsplashService(
+        UnsplashClient(
+          settings: ClientSettings(
+            debug: kDebugMode,
+            credentials: AppCredentials(
+              accessKey: remoteConfig.getString("unsplash_access_key"),
+              secretKey: remoteConfig.getString("unsplash_secret_key"),
+            ),
           ),
         ),
-      ),
-    );
-    runApp(
-      FLauncherApp(
-        sharedPreferences,
-        firebaseCrashlytics,
-        firebaseAnalytics,
-        imagePicker,
-        fLauncherChannel,
-        fLauncherDatabase,
-        unsplashService,
-        remoteConfig,
-      ),
-    );
-  }, firebaseCrashlytics.recordError);
+      );
+      runApp(
+        FLauncherApp(
+          sharedPreferences,
+          firebaseCrashlytics,
+          firebaseAnalytics,
+          imagePicker,
+          fLauncherChannel,
+          fLauncherDatabase,
+          unsplashService,
+          remoteConfig,
+        ),
+      );
+    },
+    firebaseCrashlytics.recordError,
+  );
 }
 
 Future<RemoteConfig> _initFirebaseRemoteConfig() async {
   final remoteConfig = RemoteConfig.instance;
-  await remoteConfig.setDefaults({"unsplash_enabled": false, "unsplash_access_key": "", "unsplash_secret_key": ""});
+  await remoteConfig.setDefaults({
+    "unsplash_enabled": false,
+    "unsplash_access_key": "",
+    "unsplash_secret_key": ""
+  });
   await remoteConfig.setConfigSettings(
     RemoteConfigSettings(
       fetchTimeout: Duration(minutes: 1),
