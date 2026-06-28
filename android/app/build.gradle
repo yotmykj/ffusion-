@@ -1,5 +1,5 @@
 /*
- * FLauncher
+ * FFFusion
  * Copyright (C) 2021  Étienne Fesser
  *
  * This program is free software: you can redistribute it and/or modify
@@ -58,7 +58,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "me.efesser.flauncher"
+        applicationId "com.manas.fffusion"
         minSdkVersion 21
         targetSdkVersion 30
         versionCode flutterVersionCode.toInteger()

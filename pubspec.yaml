@@ -1,7 +1,7 @@
-name: flauncher
-description: Flutter-based Android TV launcher.
+name: fffusion
+description: Modern Android TV launcher with glassmorphic UI inspired by Fusion OS.
 
-version: 0.0.1
+version: 1.0.0
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
